@@ -1,0 +1,77 @@
+/**React App\src\pages\authentication\login\Login.js */
+
+import React, { Component } from 'react';
+import { Form, Button, Alert } from 'react-bootstrap';
+import { withRouter } from 'react-router-dom';
+
+import chatHttpServer from '../../../utils/chatHttpServer';
+import './Login.css';
+
+class Login extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: '',
+      password: '',
+      loginError: false
+    };
+  }
+
+  handleLogin = async (event) => {
+    event.preventDefault();
+    this.props.loadingState(true);
+    try {
+      const response = await chatHttpServer.login(this.state);
+      this.props.loadingState(false);
+      if (response.error) {
+        this.setState({ loginError: true });
+      } else {
+        chatHttpServer.setLS('userid', response.userId);
+        this.props.history.push(`/home`);
+      }
+    } catch (error) {
+      this.props.loadingState(false);
+      this.setState({ loginError: true });
+    }
+  }
+
+  handleInputChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+      loginError: false // reset error on input change
+    });
+  }
+
+  render() {
+    return (
+      <Form className="auth-form">
+        {this.state.loginError && (
+          <Alert variant="danger">Invalid login details</Alert>
+        )}
+        <Form.Group controlId="loginUsername">
+          <Form.Control 
+            type="text"
+            name="username"
+            placeholder="Enter username"
+            onChange={this.handleInputChange}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="loginPassword">
+          <Form.Control 
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={this.handleInputChange}
+          />
+        </Form.Group>
+        <Button variant="primary" type="submit" onClick={this.handleLogin}>
+          Login
+        </Button>
+      </Form>
+    );
+  }
+}
+
+export default withRouter(Login);

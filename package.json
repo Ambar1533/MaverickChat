@@ -1,0 +1,42 @@
+{
+<<<<<<< HEAD
+  "dependencies": {
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2"
+=======
+  "name": "chat-api",
+  "version": "1.0.0",
+  "description": "Real-time private chatting API using Node.js, MongoDB, and Socket.io",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:prod": "NODE_ENV=production node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chat",
+    "rest",
+    "api",
+    "socket.io",
+    "mongodb",
+    "express"
+  ],
+  "author": "Shashank Tiwari",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^5.7.0",
+    "multer": "^1.4.5-lts.2",
+    "socket.io": "^4.7.2"
+>>>>>>> 222ebd4ecd36d26b4123f3aced2058af8b4538ec
+  }
+}
