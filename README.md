@@ -1,46 +1,136 @@
-<<<<<<< HEAD
-# Real time private chatting app using React Nodejs mongodb and Socket.io
+# 💬 Maverick Chat
 
-As the title reads, This app is private chat application built using React (version 16.8.4). This is SPA application, which uses [react-bootstrap](https://react-bootstrap.github.io/). Server-side is written in Nodejs (version 10.15.1) and MongoDB(version 3.6.3).
+A **real-time private chatting app** built using **React**, **Node.js**, **Socket.IO**, and **MongoDB Atlas**.
 
-This project was generated with [create-react-app](https://github.com/facebook/create-react-app) version 2.1.8.
+- 🔐 Secure login and registration
+- 💬 Instant messaging with WebSocket
+- 🧑‍🤝‍🧑 Real-time presence and typing indicators
+- 💾 Backend deployed on **Render**
+- 🌐 Frontend deployed on **Vercel**
 
-## React Code
-Code for React application is in [React folder](https://github.com/ShankyTiwari/Real-time-private-chatting-app-using-React-Nodejs-mongodb-and-Socket.io/tree/master/React%20App).
+---
 
-## Nodejs API Code
-Code for Nodejs application is in [Nodejs API folder](https://github.com/ShankyTiwari/Real-time-private-chatting-app-using-React-Nodejs-mongodb-and-Socket.io/tree/master/Nodejs%20API).
+## 🚀 Live Demo
 
+🔗 Frontend: [https://maverick-chat.vercel.app](https://maverick-chat.vercel.app)  
+🔗 Backend API: [https://chatapp-api-fars.onrender.com](https://chatapp-api-fars.onrender.com)
 
-## Explanation and Blog Post
-Coming Soon.
+---
 
-# Looking for Angular 2 and above
-I have written this application in Angular as well, [Read this popular Blog post](http://www.codershood.info/2017/02/09/real-time-private-chatting-app-using-angular-2-nodejs-mongodb-socket-io-part-1/).
-Alternatively, you can download an **[Ebook](http://www.codershood.info)** for the same application, along with Ebook you will get the source code of the application. In the ebook, you will get some of the must-have features such as notifications and online/offline chat list.
+## 📸 Screenshots
 
-# Looking for Plain Old AngularJS
-I have written this application in AngularJs as well, [Read this popular Blog post](http://www.codershood.info/2015/12/10/real-time-chatting-app-using-nodejs-mysql-angularjs-and-socket-io-part-1/).
-=======
-# NodeJS API for private chatting app built using Angular
+### 🔐 Login Page
 
-This is NodeJS API for private chatting app built using Angular. The API is built using Nodejs (version 8.9.4) and MongoDB(version 3.6.3).
+![Login](./screenshots/login.png)
 
+### 💬 Chat Interface
 
-## Installation 
-The below commands to install this API.
-1. `npm install`
-2. `node server.js`
+![Chat](./screenshots/chat.png)
 
+---
 
-## Explanation and Blog Post
-I have written a complete article on this application in three parts, for more details and Code explanation.
+## 🧱 Tech Stack
 
-1. [Blog Post Part 1](http://www.codershood.info/2017/02/09/real-time-private-chatting-app-using-angular-2-nodejs-mongodb-socket-io-part-1/)  =>  Covers the prerequisites, server configuration setup and REST API along with socket.io integration on the server.
-2. [Blog Post Part 2](http://www.codershood.info/2017/02/10/real-time-private-chatting-app-using-angular-2-nodejs-mongodb-socket-io-part-2/)  => This part covers the configuration our angular application and application Routing and implementation our application’s services.
-3. [Blog Post Part 3](http://www.codershood.info/2017/02/18/real-time-private-chatting-app-using-angular-2-nodejs-mongodb-socket-io-part-3-2/)  => Implementation of Login and Registration functionality.
-3. [Blog Post Part 4](http://www.codershood.info/2017/03/05/real-time-private-chatting-app-using-angular-2-nodejs-mongodb-socket-io-part-4/)  =>  Building homepage of the application where the user actually can chat with each other.
+### Frontend
 
-# Looking for Plain Old AngularJS
-I have written this application in AngularJs as well, [Read this popular Blog post](http://www.codershood.info/2015/12/10/real-time-chatting-app-using-nodejs-mysql-angularjs-and-socket-io-part-1/), which has more than 50k views and 100000 downloads approx.
->>>>>>> 222ebd4ecd36d26b4123f3aced2058af8b4538ec
+- React 16.14
+- Bootstrap 4
+- Axios
+- Socket.IO Client
+
+### Backend
+
+- Node.js (Express)
+- MongoDB Atlas
+- Socket.IO
+- JWT Authentication
+- Rate Limiting + Helmet + CORS
+
+---
+
+## 📁 Project Structure
+
+```
+Chatting-app/
+│
+├── Nodejs API/
+│   ├── config/
+│   ├── handlers/
+│   ├── routes/
+│   ├── server.js
+│   └── .env
+│
+├── React App/
+│   ├── src/
+│   ├── public/
+│   ├── .env
+│   └── package.json
+│
+├── screenshots/
+│   ├── login.png
+│   └── chat.png
+│
+├── README.md
+└── LICENSE
+```
+
+---
+
+## 🛠️ Setup & Deployment
+
+### Clone Repository
+
+```bash
+git clone https://github.com/Ambar1533/MaverickChat.git
+cd MaverickChat
+```
+
+### Backend Setup (Node.js)
+
+```bash
+cd "Nodejs API"
+npm install
+npm start
+```
+
+Make sure your `.env` contains:
+
+```env
+PORT=4000
+HOST=0.0.0.0
+DB_URL=mongodb+srv://<username>:<password>@cluster0.mongodb.net/chatAppDB
+JWT_SECRET=yourJWTSecret
+```
+
+### Frontend Setup (React)
+
+```bash
+cd "../React App"
+npm install
+npm start
+```
+
+Your `.env` file should be:
+
+```env
+REACT_APP_API_URL=https://chatapp-api-fars.onrender.com
+REACT_APP_SOCKET_URL=https://chatapp-api-fars.onrender.com
+```
+
+---
+
+## 📄 License
+
+Licensed under the [MIT License](./LICENSE).
+
+---
+
+## 🙌 Author
+
+**Ambar Mistry** – [LinkedIn](https://www.linkedin.com/in/ambar1533)
+
+---
+
+## 🌟 Show Your Support
+
+If you like this project, leave a ⭐ on the repo and share it with others!
