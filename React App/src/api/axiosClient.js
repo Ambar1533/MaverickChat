@@ -4,30 +4,22 @@ import axios from 'axios';
 import { getUserId, getUsername } from '../utils/storage';
 
 const axiosClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: process.env.REACT_APP_API_URL, // ✅ Make sure this is defined in your .env
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// 🔐 Request Interceptor: Attach user info or token
+// 🔐 Request Interceptor: Attach user metadata and auth token
 axiosClient.interceptors.request.use(
   config => {
     const userId = getUserId();
     const username = getUsername();
-
-    if (userId) {
-      config.headers['X-User-ID'] = userId;
-    }
-    if (username) {
-      config.headers['X-Username'] = username;
-    }
-
-    // Example: Add token if stored
     const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
+
+    if (userId) config.headers['X-User-ID'] = userId;
+    if (username) config.headers['X-Username'] = username;
+    if (token) config.headers['Authorization'] = `Bearer ${token}`;
 
     return config;
   },
@@ -37,15 +29,23 @@ axiosClient.interceptors.request.use(
   }
 );
 
-// 🛡️ Response Interceptor: Global error logging
+// 🛡️ Response Interceptor: Global error handling
 axiosClient.interceptors.response.use(
   response => response,
   error => {
+    const status = error?.response?.status;
+
     console.error('[Axios Response Error]', error?.response || error);
 
-    if (error.response && error.response.status === 401) {
-      console.warn('⚠️ Unauthorized: Redirect or clear auth');
-      // Optionally: redirect to login or clear session
+    // Handle auth errors globally
+    if (status === 401) {
+      console.warn('⚠️ Unauthorized - Consider redirecting to login.');
+      // Optional: logout logic or redirect
+    }
+
+    // Handle precondition failure (e.g., username taken)
+    if (status === 412) {
+      console.warn('🚫 Precondition Failed - Possibly invalid username.');
     }
 
     return Promise.reject(error);

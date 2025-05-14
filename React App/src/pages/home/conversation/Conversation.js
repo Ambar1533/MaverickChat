@@ -1,4 +1,5 @@
-/* React App\src\pages\home\conversation\Conversation.js */
+// React App/src/pages/home/conversation/Conversation.js
+
 import React, { Component } from 'react';
 import chatHttpServer from '../../../utils/chatHttpServer';
 import chatSocketServer from '../../../utils/chatSocketServer';
@@ -58,9 +59,9 @@ class Conversation extends Component {
   receiveSocketMessages = (socketResponse) => {
     const { selectedUser } = this.state;
     if (selectedUser && selectedUser.id === socketResponse.fromUserId) {
-      this.setState({
-        conversations: [...this.state.conversations, socketResponse]
-      });
+      this.setState(prevState => ({
+        conversations: [...prevState.conversations, socketResponse]
+      }));
       this.scrollMessageContainer();
 
       chatSocketServer.sendMessageRead({
@@ -72,39 +73,38 @@ class Conversation extends Component {
   };
 
   handleTypingIndicator = (data) => {
-    const { newSelectedUser } = this.props;
-    if (newSelectedUser && data.fromUserId === newSelectedUser.id) {
+    if (this.props.newSelectedUser && data.fromUserId === this.props.newSelectedUser.id) {
       this.setState({ isTyping: true, typingUser: data.username });
     }
   };
 
   handleStopTypingIndicator = (data) => {
-    const { newSelectedUser } = this.props;
-    if (newSelectedUser && data.fromUserId === newSelectedUser.id) {
+    if (this.props.newSelectedUser && data.fromUserId === this.props.newSelectedUser.id) {
       this.setState({ isTyping: false, typingUser: '' });
     }
   };
 
   handleMessageRead = ({ messageId }) => {
-    const updated = this.state.conversations.map((msg) =>
-      msg._id === messageId ? { ...msg, read: true } : msg
-    );
-    this.setState({ conversations: updated });
+    this.setState(prevState => ({
+      conversations: prevState.conversations.map(msg =>
+        msg._id === messageId ? { ...msg, read: true } : msg
+      )
+    }));
   };
 
   getMessages = async () => {
     try {
       const { userId, newSelectedUser } = this.props;
-      const messageResponse = await chatHttpServer.getMessages(userId, newSelectedUser.id);
-      if (!messageResponse.error) {
-        this.setState({ conversations: messageResponse.messages });
+      const response = await chatHttpServer.getMessages(userId, newSelectedUser.id);
+      if (!response.error) {
+        this.setState({ conversations: response.messages });
         this.scrollMessageContainer();
       } else {
         console.error('Unable to fetch messages');
       }
       this.setState({ messageLoading: false });
     } catch (error) {
-      console.error('Message fetch error:', error);
+      console.error('Fetch error:', error);
       this.setState({ messageLoading: false });
     }
   };
@@ -115,13 +115,11 @@ class Conversation extends Component {
       const message = event.target.value.trim();
       const { userId, newSelectedUser } = this.props;
 
-      if (!message || !userId || !newSelectedUser) {
-        return;
-      }
+      if (!message || !userId || !newSelectedUser) return;
 
       this.sendAndUpdateMessages({
         fromUserId: userId,
-        message: message,
+        message,
         toUserId: newSelectedUser.id,
         timestamp: new Date()
       });
@@ -131,7 +129,7 @@ class Conversation extends Component {
     }
   };
 
-  handleTyping = (event) => {
+  handleTyping = () => {
     const { userId, newSelectedUser } = this.props;
     if (!newSelectedUser) return;
 
@@ -163,16 +161,14 @@ class Conversation extends Component {
 
     try {
       const uploadRes = await uploadFile(selectedFile);
-
       if (uploadRes && uploadRes.imageUrl) {
-        const fileMessage = {
+        this.sendAndUpdateMessages({
           fromUserId: userId,
           toUserId: newSelectedUser.id,
           message: uploadRes.imageUrl,
           isFile: true,
           timestamp: new Date()
-        };
-        this.sendAndUpdateMessages(fileMessage);
+        });
         this.setState({ previewUrl: null, selectedFile: null });
       }
     } catch (error) {
@@ -180,83 +176,78 @@ class Conversation extends Component {
     }
   };
 
-  sendAndUpdateMessages(message) {
+  sendAndUpdateMessages = (message) => {
     try {
       chatSocketServer.sendMessage(message);
-      this.setState({
-        conversations: [...this.state.conversations, { ...message, read: false }]
-      });
+      this.setState(prevState => ({
+        conversations: [...prevState.conversations, { ...message, read: false }]
+      }));
       this.scrollMessageContainer();
     } catch (error) {
-      console.error(`Can't send your message`, error);
+      console.error(`Message send error`, error);
     }
-  }
+  };
 
-  scrollMessageContainer() {
-    if (this.messageContainer.current !== null) {
-      try {
-        setTimeout(() => {
-          this.messageContainer.current.scrollTop = this.messageContainer.current.scrollHeight;
-        }, 100);
-      } catch (error) {
-        console.warn(error);
-      }
+  scrollMessageContainer = () => {
+    if (this.messageContainer.current) {
+      setTimeout(() => {
+        this.messageContainer.current.scrollTop = this.messageContainer.current.scrollHeight;
+      }, 100);
     }
-  }
+  };
 
-  alignMessages(toUserId) {
+  alignMessages = (toUserId) => {
     return this.props.userId !== toUserId;
-  }
+  };
 
-  formatTimestamp(timestamp) {
+  formatTimestamp = (timestamp) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
+  };
 
-  getMessageUI() {
+  getMessageUI = () => {
     return (
       <ul ref={this.messageContainer} className="message-thread">
-        {this.state.conversations.map((conversation, index) => (
-          <li
-            className={`${this.alignMessages(conversation.toUserId) ? 'align-right' : ''}`}
-            key={index}
-          >
+        {this.state.conversations.map((msg, index) => (
+          <li key={index} className={this.alignMessages(msg.toUserId) ? 'align-right' : ''}>
             <div>
-              {conversation.isFile ? (
-                conversation.message.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                  <img src={conversation.message} alt="sent" className="chat-image" />
+              {msg.isFile ? (
+                msg.message.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                  <img src={msg.message} alt="sent file" className="chat-image" />
                 ) : (
-                  <a href={conversation.message} target="_blank" rel="noopener noreferrer">Download File</a>
+                  <a href={msg.message} target="_blank" rel="noopener noreferrer">Download File</a>
                 )
               ) : (
-                conversation.message
+                msg.message
               )}
             </div>
             <div className="message-meta">
-              <span className="timestamp">{this.formatTimestamp(conversation.timestamp)}</span>
-              {this.alignMessages(conversation.toUserId) && (
-                <span className="read-status">{conversation.read ? '✔' : '🕓'}</span>
+              <span className="timestamp">{this.formatTimestamp(msg.timestamp)}</span>
+              {this.alignMessages(msg.toUserId) && (
+                <span className="read-status">{msg.read ? '✔' : '🕓'}</span>
               )}
             </div>
           </li>
         ))}
       </ul>
     );
-  }
+  };
 
-  getInitiateConversationUI() {
-    if (this.props.newSelectedUser !== null) {
+  getInitiateConversationUI = () => {
+    const { newSelectedUser } = this.props;
+    if (newSelectedUser) {
       return (
         <div className="message-thread start-chatting-banner">
           <p className="heading">
-            You haven't chatted with {this.props.newSelectedUser.username} in a while,
-            <span className="sub-heading"> Say Hi.</span>
+            You haven't chatted with {newSelectedUser.username} yet,{' '}
+            <span className="sub-heading">Say Hi 👋</span>
           </p>
         </div>
       );
     }
-  }
+    return null;
+  };
 
   render() {
     const { messageLoading, selectedUser, isTyping, typingUser, previewUrl } = this.state;
@@ -264,18 +255,20 @@ class Conversation extends Component {
       <>
         <div className={`message-overlay ${!messageLoading ? 'visibility-hidden' : ''}`}>
           <h3>
-            {selectedUser && selectedUser.username ? 'Loading Messages' : ' Select a User to chat.'}
+            {selectedUser?.username ? 'Loading Messages...' : 'Select a user to start chatting'}
           </h3>
         </div>
+
         <div className={`message-wrapper ${messageLoading ? 'visibility-hidden' : ''}`}>
           <div className="message-container">
             <div className="opposite-user">
-              Chatting with{' '}
-              {this.props.newSelectedUser ? this.props.newSelectedUser.username : '----'}
+              Chatting with {this.props.newSelectedUser?.username || '----'}
             </div>
+
             {this.state.conversations.length > 0
               ? this.getMessageUI()
               : this.getInitiateConversationUI()}
+
             {isTyping && <div className="typing-indicator">{typingUser} is typing...</div>}
           </div>
 
@@ -287,17 +280,21 @@ class Conversation extends Component {
                 onKeyPress={this.sendMessage}
                 onChange={this.handleTyping}
               ></textarea>
+
               <div className="file-upload">
                 <input
                   type="file"
-                  onChange={this.handleFileChange}
                   accept="image/*,application/pdf"
+                  onChange={this.handleFileChange}
                 />
               </div>
+
               {previewUrl && (
                 <div className="image-preview">
                   <img src={previewUrl} alt="preview" width="100" />
-                  <button type="button" onClick={this.handleFileUpload}>Send Image</button>
+                  <button type="button" onClick={this.handleFileUpload}>
+                    Send Image
+                  </button>
                 </div>
               )}
             </form>

@@ -1,4 +1,4 @@
-// React App\src\utils\chatHttpServer.js
+// React App/src/utils/chatHttpServer.js
 
 import axiosClient from '../api/axiosClient';
 import {
@@ -10,7 +10,7 @@ import {
 } from './storage';
 
 class ChatHttpServer {
-  // Local Storage Getters
+  // 🔐 Local Storage Helpers
   getUserId() {
     return getUserId();
   }
@@ -19,7 +19,6 @@ class ChatHttpServer {
     return getUsername();
   }
 
-  // Local Storage Setters
   setLS(key, value) {
     return setStorage(key, value);
   }
@@ -32,17 +31,16 @@ class ChatHttpServer {
     return removeStorage();
   }
 
-  // HTTP Calls
+  // 🔗 API Methods
 
   async login(userCredential) {
     try {
       const response = await axiosClient.post('/login', userCredential);
       const { token } = response.data;
-      if (token) {
-        setStorage('token', token);  // ✅ Save token
-      }
+      if (token) setStorage('token', token);
       return response.data;
     } catch (error) {
+      console.error('Login failed:', error);
       throw error;
     }
   }
@@ -50,13 +48,18 @@ class ChatHttpServer {
   async checkUsernameAvailability(username) {
     try {
       const token = getStorage('token');
-      const response = await axiosClient.post('/usernameAvailable', { username }, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await axiosClient.post(
+        '/usernameAvailable',
+        { username },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        }
+      );
       return response.data;
     } catch (error) {
+      console.error('Username check failed:', error);
       throw error;
     }
   }
@@ -64,13 +67,18 @@ class ChatHttpServer {
   async register(userCredential) {
     try {
       const token = getStorage('token');
-      const response = await axiosClient.post('/register', userCredential, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await axiosClient.post(
+        '/register',
+        userCredential,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        }
+      );
       return response.data;
     } catch (error) {
+      console.error('Registration failed:', error);
       throw error;
     }
   }
@@ -78,13 +86,18 @@ class ChatHttpServer {
   async userSessionCheck(userId) {
     try {
       const token = getStorage('token');
-      const response = await axiosClient.post('/userSessionCheck', { userId }, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await axiosClient.post(
+        '/userSessionCheck',
+        { userId },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        }
+      );
       return response.data;
     } catch (error) {
+      console.error('Session check failed:', error);
       throw error;
     }
   }
@@ -92,21 +105,22 @@ class ChatHttpServer {
   async getMessages(userId, toUserId) {
     try {
       const token = getStorage('token');
-      const response = await axiosClient.post('/getMessages', {
-        userId,
-        toUserId,
-      }, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await axiosClient.post(
+        '/getMessages',
+        { userId, toUserId },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        }
+      );
       return response.data;
     } catch (error) {
+      console.error('Get messages failed:', error);
       throw error;
     }
   }
 
-  // ✅ Upload file (image/pdf)
   async uploadFile(formData) {
     try {
       const response = await axiosClient.post('/upload', formData, {
@@ -116,6 +130,7 @@ class ChatHttpServer {
       });
       return response.data;
     } catch (error) {
+      console.error('Upload failed:', error);
       throw error;
     }
   }
@@ -123,4 +138,3 @@ class ChatHttpServer {
 
 const instance = new ChatHttpServer();
 export default instance;
-

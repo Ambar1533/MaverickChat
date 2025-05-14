@@ -25,7 +25,7 @@ export const getStorage = (key) => {
   try {
     return localStorage.getItem(key);
   } catch (error) {
-    console.error(`Error getting ${key} from storage:`, error);
+    console.error(`Error getting "${key}" from storage:`, error);
     return null;
   }
 };
@@ -35,17 +35,15 @@ export const setStorage = (key, value) => {
   try {
     localStorage.setItem(key, value);
   } catch (error) {
-    console.error(`Error setting ${key} in storage:`, error);
+    console.error(`Error setting "${key}" in storage:`, error);
   }
 };
 
 // ❌ Remove all session-related keys
 export const removeStorage = () => {
   try {
-    localStorage.removeItem('userid');
-    localStorage.removeItem('username');
-    localStorage.removeItem('token');  // ✅ Remove token on logout
+    ['userid', 'username', 'token'].forEach(key => localStorage.removeItem(key));
   } catch (error) {
-    console.error('Error clearing localStorage:', error);
+    console.error('Error clearing session keys from localStorage:', error);
   }
 };

@@ -1,23 +1,21 @@
+// React App/src/pages/home/chat-list/ChatList.js
 
-/*React App\src\pages\home\chat-list\ChatList.js*/
 import React, { Component } from 'react';
-
 import chatSocketServer from '../../../utils/chatSocketServer';
-import "./ChatList.css";
+import './ChatList.css';
 
 class ChatList extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
       selectedUserId: null,
       chatListUsers: []
-    }
+    };
   }
 
   componentDidMount() {
-    const userId = this.props.userId;
+    const { userId } = this.props;
     chatSocketServer.getChatList(userId);
     chatSocketServer.eventEmitter.on('chat-list-response', this.createChatListUsers);
   }
@@ -26,59 +24,61 @@ class ChatList extends Component {
     chatSocketServer.eventEmitter.removeListener('chat-list-response', this.createChatListUsers);
   }
 
-  createChatListUsers = (chatListResponse) => {    
+  createChatListUsers = (chatListResponse) => {
     if (!chatListResponse.error) {
-      let chatListUsers = this.state.chatListUsers;
+      let updatedUsers = [...this.state.chatListUsers];
+
       if (chatListResponse.singleUser) {
-        if (chatListUsers.length > 0) {
-          chatListUsers = chatListUsers.filter(obj => obj.id !== chatListResponse.chatList[0].id);
-        }
-        chatListUsers = [...chatListUsers, ...chatListResponse.chatList];
+        updatedUsers = updatedUsers.filter(u => u.id !== chatListResponse.chatList[0].id);
+        updatedUsers.push(chatListResponse.chatList[0]);
       } else if (chatListResponse.userDisconnected) {
-        const loggedOutUser = chatListUsers.findIndex(obj => obj.id === chatListResponse.userid);
-        if (loggedOutUser >= 0) {
-          chatListUsers[loggedOutUser].online = 'N';
-        }
+        updatedUsers = updatedUsers.map(user =>
+          user.id === chatListResponse.userid ? { ...user, online: 'N' } : user
+        );
       } else {
-        chatListUsers = chatListResponse.chatList;
+        updatedUsers = chatListResponse.chatList;
       }
 
-      this.setState({ chatListUsers });
+      this.setState({ chatListUsers: updatedUsers });
     } else {
-      console.error('Unable to load Chat list, Redirecting to Login.');
+      console.error('❌ Error: Unable to load chat list. Redirecting to Login.');
     }
 
     this.setState({ loading: false });
-  }
+  };
 
   selectedUser = (user) => {
-    this.setState({
-      selectedUserId: user.id
-    });
-    this.props.updateSelectedUser(user)
-  }
+    this.setState({ selectedUserId: user.id });
+    this.props.updateSelectedUser(user);
+  };
 
   render() {
+    const { chatListUsers, selectedUserId, loading } = this.state;
+    const noUsers = chatListUsers.length === 0;
+
     return (
       <>
-        <ul className={`user-list ${this.state.chatListUsers.length === 0 ? 'visibility-hidden' : ''}`} >
-          {
-            this.state.chatListUsers.map(user => 
-              <li 
-                key={user.id} 
-                className={this.state.selectedUserId === user.id ? 'active' : ''}
-                onClick={() => this.selectedUser(user)}
-              >
-                {user.username}
-                <span className={user.online === 'Y' ? 'online' : 'offline'}></span>
-              </li>
-            )
-          }
+        <ul className={`user-list ${noUsers ? 'visibility-hidden' : ''}`}>
+          {chatListUsers.map(user => (
+            <li
+              key={user.id}
+              className={selectedUserId === user.id ? 'active' : ''}
+              onClick={() => this.selectedUser(user)}
+            >
+              {user.username}
+              <span className={user.online === 'Y' ? 'online' : 'offline'}></span>
+            </li>
+          ))}
         </ul>
-        <div className={`alert 
-          ${this.state.loading ? 'alert-info' : ''} 
-          ${this.state.chatListUsers.length > 0 ? 'visibility-hidden' : ''}`}>
-          { this.state.loading || this.state.chatListUsers.length === 0 ? 'Loading your chat list.' : 'No User Available to chat.' }
+
+        <div
+          className={`alert ${
+            loading ? 'alert-info' : ''
+          } ${!loading && noUsers ? '' : 'visibility-hidden'}`}
+        >
+          {loading
+            ? 'Loading your chat list...'
+            : 'No users available to chat.'}
         </div>
       </>
     );
