@@ -1,10 +1,10 @@
 // src/api/axiosClient.js
 
 import axios from 'axios';
-import { getUserId, getUsername } from '../utils/storage';
+import { getUserId, getUsername, getStorage } from '../utils/storage';
 
 const axiosClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // ✅ Make sure this is defined in your .env
+  baseURL: process.env.REACT_APP_API_URL, // ✅ Set in .env
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,7 +15,7 @@ axiosClient.interceptors.request.use(
   config => {
     const userId = getUserId();
     const username = getUsername();
-    const token = localStorage.getItem('token');
+    const token = getStorage('token');
 
     if (userId) config.headers['X-User-ID'] = userId;
     if (username) config.headers['X-Username'] = username;
@@ -37,15 +37,15 @@ axiosClient.interceptors.response.use(
 
     console.error('[Axios Response Error]', error?.response || error);
 
-    // Handle auth errors globally
+    // 🔒 Handle auth failure
     if (status === 401) {
-      console.warn('⚠️ Unauthorized - Consider redirecting to login.');
-      // Optional: logout logic or redirect
+      console.warn('⚠️ Unauthorized - Possibly expired or missing token.');
+      // Optional: Redirect to login or clear session
     }
 
-    // Handle precondition failure (e.g., username taken)
+    // 🚫 Handle precondition failure
     if (status === 412) {
-      console.warn('🚫 Precondition Failed - Possibly invalid username.');
+      console.warn('🚫 Precondition Failed - Likely a validation error (e.g., username taken).');
     }
 
     return Promise.reject(error);

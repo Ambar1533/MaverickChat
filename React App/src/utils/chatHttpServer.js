@@ -36,11 +36,17 @@ class ChatHttpServer {
   async login(userCredential) {
     try {
       const response = await axiosClient.post('/login', userCredential);
-      const { token } = response.data;
-      if (token) setStorage('token', token);
+      const { token, userId, username } = response.data;
+
+      if (token) {
+        setStorage('token', token);
+        if (userId) setStorage('userid', userId);
+        if (username) setStorage('username', username);
+      }
+
       return response.data;
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('❌ Login failed:', error);
       throw error;
     }
   }
@@ -59,7 +65,7 @@ class ChatHttpServer {
       );
       return response.data;
     } catch (error) {
-      console.error('Username check failed:', error);
+      console.error('❌ Username check failed:', error);
       throw error;
     }
   }
@@ -78,7 +84,7 @@ class ChatHttpServer {
       );
       return response.data;
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('❌ Registration failed:', error);
       throw error;
     }
   }
@@ -97,7 +103,7 @@ class ChatHttpServer {
       );
       return response.data;
     } catch (error) {
-      console.error('Session check failed:', error);
+      console.error('❌ Session check failed:', error);
       throw error;
     }
   }
@@ -116,21 +122,23 @@ class ChatHttpServer {
       );
       return response.data;
     } catch (error) {
-      console.error('Get messages failed:', error);
+      console.error('❌ Get messages failed:', error);
       throw error;
     }
   }
 
   async uploadFile(formData) {
     try {
+      const token = getStorage('token');
       const response = await axiosClient.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: token ? `Bearer ${token}` : '',
         },
       });
       return response.data;
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('❌ Upload failed:', error);
       throw error;
     }
   }
